@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="docxtemplater.min.js"></script>
+    <script src="pizzip.js"></script>
+    <script src="mammoth.browser.min.js"></script>
+</head>
+<body>
+    <title>Annotation App</title>
+    <input type="file" id="file-input" accept=".docx" onchange='openHTML(event)'/>
+    <textarea id="text-input" rows="4" cols="50"></textarea>
+    <div id="output"></div>
+</body>
+<script>
+    // load text from file input and display it in text area when file is selected
+    var openFile = function(event) {
+    var input = event.target;
+    var reader = new FileReader();
+    reader.onload = function() {
+        var zip = new PizZip(reader.result);
+        // use options to enable all formatting from original docx
+        var doc = new window.docxtemplater(zip, {
+            
+        });
+        var text = doc.getFullText();
+        console.log(text);
+        var node = document.getElementById("text-input");
+        node.value = text;
+    };
+    reader.readAsBinaryString(input.files[0]);
+    };
+    // load text from file input and convert it to html displayed in output div
+    var openHTML = function(event) {
+        var input = event.target;
+        mammoth.convertToHtml({path: URL.createObjectURL(input.files[0])})
+            .then(function(result){
+                var html = result.value; // The generated HTML
+                var messages = result.messages; // Any messages, such as warnings during conversion
+            })
+            .catch(function(error) {
+                console.error(error);
+            }); 
+        var output = document.getElementById("output");
+        output.innerHTML = html;
+    };
+
+
+</script>
+</html>
